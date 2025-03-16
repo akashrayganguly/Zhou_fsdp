@@ -343,11 +343,16 @@ class Dataset_Pred(Dataset):
             
         tmp_stamp = df_raw[['date']][border1:border2]
         tmp_stamp['date'] = pd.to_datetime(tmp_stamp.date)
-        pred_dates = pd.date_range(tmp_stamp.date.values[-1], periods=self.pred_len+1, freq=self.freq)
+        pred_dates = pd.date_range(tmp_stamp.date.values[-1], periods=self.pred_len+1, freq=self.freq, inclusive='right')
         
         df_stamp = pd.DataFrame(columns = ['date'])
         df_stamp.date = list(tmp_stamp.date.values) + list(pred_dates[1:])
-        data_stamp = time_features(df_stamp, timeenc=self.timeenc, freq=self.freq[-1:])
+
+        try:
+            frequency = self.freq[-1:]
+        except:
+            frequency = self.freq.freqstr
+        data_stamp = time_features(df_stamp, timeenc=self.timeenc, freq=frequency)
 
         self.data_x = data[border1:border2]
         if self.inverse:
